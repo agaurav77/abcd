@@ -85,6 +85,7 @@ public class LoginActivity extends AppCompatActivity {
     private class LoginHandlerTask extends AsyncTask<String, Void, String> {
 
         private ProgressDialog progressDialog;
+        private int status = -1;
 
         /* show a spinner, that you're trying */
         @Override
@@ -100,6 +101,7 @@ public class LoginActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             String username = params[0];
             String password = params[1];
+            String response = "";
             String urlParams = "username="+username+"&password="+password;
             byte[] postData = urlParams.getBytes(Charset.forName("UTF-8"));
             int postLength = postData.length;
@@ -115,21 +117,22 @@ public class LoginActivity extends AppCompatActivity {
                 conn.getOutputStream().write(postData);
                 Reader r = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
                 int ch = r.read();
-                String response = "";
                 while (ch != -1) {
                     response += (char)ch;
                     ch = r.read();
                 }
-                Log.d("[Response]", response);
-                Log.d("[Code]", ""+conn.getResponseCode());
-                if (conn.getResponseCode() == 200) {
+                status = conn.getResponseCode();
+                if (status != 200) {
+                    Toast t = Toast.makeText(LoginActivity.this, "response", Toast.LENGTH_LONG);
+                    t.setText("Login Failed !!");
+                    t.show();
                 }
 
             } catch (Exception e) {
                 Log.d("[Exception]", e.toString());
             }
 
-            return null;
+            return response;
         }
 
         /* stop the spinner, it's done !! */
@@ -138,7 +141,23 @@ public class LoginActivity extends AppCompatActivity {
             super.onPostExecute(res);
             if (progressDialog.isShowing()) progressDialog.dismiss();
 
-            /* (TODO) start a new intent, if validated */
+            /* I intend to show the profile !! */
+            if (status == 200) {
+                Intent i = new Intent(LoginActivity.this, ProfileActivity.class);
+                /* parse the response (res) */
+                try {
+                    JSONObject jsonObject = new JSONObject(res);
+                    JSONObject credentials = jsonObject.getJSONObject("user");
+                    i.putExtra("email", credentials.get("email").toString());
+                    i.putExtra("first_name", credentials.get("first_name").toString());
+                    i.putExtra("last_name", credentials.get("last_name").toString());
+                    i.putExtra("phone", credentials.get("phone").toString());
+                    startActivity(i);
+                } catch (Exception e) {
+                    Log.d("[Exception]", e.toString());
+                }
+                finish();
+            }
         }
 
     }
