@@ -103,25 +103,12 @@ public class LoginActivity extends AppCompatActivity {
             String password = params[1];
             String response = "";
             String urlParams = "username="+username+"&password="+password;
-            byte[] postData = urlParams.getBytes(Charset.forName("UTF-8"));
-            int postLength = postData.length;
 
             /* post it to site, and get back data, plus validate */
             try {
-                URL urlobj = new URL(LoginActivity.this.url+"userLogin");
-                HttpURLConnection conn = (HttpURLConnection) urlobj.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setDoOutput(true);
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                conn.setUseCaches(false);
-                conn.getOutputStream().write(postData);
-                Reader r = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-                int ch = r.read();
-                while (ch != -1) {
-                    response += (char)ch;
-                    ch = r.read();
-                }
-                status = conn.getResponseCode();
+                HTTPHelper httpHelper = new HTTPHelper();
+                response = httpHelper.post(LoginActivity.this.url+"userLogin", urlParams);
+                status = httpHelper.response_code;
                 if (status != 200) {
                     Toast t = Toast.makeText(LoginActivity.this, "response", Toast.LENGTH_LONG);
                     t.setText("Login Failed !!");
