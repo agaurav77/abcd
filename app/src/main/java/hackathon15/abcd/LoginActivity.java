@@ -3,6 +3,7 @@ package hackathon15.abcd;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -31,13 +32,28 @@ public class LoginActivity extends AppCompatActivity {
 
     EditText username, password;
     final String url = "http://172.16.16.57:3000/";
+    final String prefs = "UserPreferences"; /* the shared preferences */
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        username = (EditText) findViewById(R.id.username);
-        password = (EditText) findViewById(R.id.password);
+        SharedPreferences sharedPreferences = getSharedPreferences(prefs, 0);
+        String id = "";
+        try {
+            id = sharedPreferences.getString("_id", "");
+            if (!id.equals("")) {
+                Log.d("[ID]", id);
+                new LoginHandlerTask().execute("", "", id);
+            } else {
+                setContentView(R.layout.activity_login);
+                username = (EditText) findViewById(R.id.username);
+                password = (EditText) findViewById(R.id.password);
+            }
+
+        } catch (Exception e) {
+            Log.d("[Exception]", e.toString());
+        }
     }
 
     /* try to login */
@@ -45,7 +61,6 @@ public class LoginActivity extends AppCompatActivity {
         /* is network allowed ?? */
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        System.out.println("ABCD");
         if (networkInfo == null || !networkInfo.isConnected()) {
             /* show a toast, we cannot use the internet right now */
             Toast t = Toast.makeText(this, "network_unavailable_message", Toast.LENGTH_SHORT);
@@ -56,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         String ustr = username.getText().toString();
         String pstr = password.getText().toString();
-        new LoginHandlerTask().execute(ustr, pstr);
+        new LoginHandlerTask().execute(ustr, pstr, "");
 
     }
 
@@ -86,6 +101,8 @@ public class LoginActivity extends AppCompatActivity {
 
         private ProgressDialog progressDialog;
         private int status = -1;
+        private boolean success = false;
+        private boolean mode = false;
 
         /* show a spinner, that you're trying */
         @Override
@@ -101,15 +118,20 @@ public class LoginActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             String username = params[0];
             String password = params[1];
+            String id = params[2];
             String response = "";
             String urlParams = "username="+username+"&password="+password;
+            mode = id.equals("");
 
             /* post it to site, and get back data, plus validate */
             try {
                 HTTPHelper httpHelper = new HTTPHelper();
-                response = httpHelper.post(LoginActivity.this.url+"userLogin", urlParams);
+                if (!mode) response = httpHelper.post(LoginActivity.this.url+"users/id", "id="+id);
+                else response = httpHelper.post(LoginActivity.this.url+"userLogin", urlParams);
                 status = httpHelper.response_code;
-                if (status != 200) {
+                JSONObject jsonObject = new JSONObject(response);
+                success = jsonObject.get("success").toString().equals("true");
+                if ((mode && status != 200) || !success) {
                     Toast t = Toast.makeText(LoginActivity.this, "response", Toast.LENGTH_LONG);
                     t.setText("Login Failed !!");
                     t.show();
@@ -118,7 +140,7 @@ public class LoginActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.d("[Exception]", e.toString());
             }
-
+            Log.d("[Response]", response);
             return response;
         }
 
@@ -129,7 +151,7 @@ public class LoginActivity extends AppCompatActivity {
             if (progressDialog.isShowing()) progressDialog.dismiss();
 
             /* I intend to show the profile !! */
-            if (status == 200) {
+            if ((mode && status == 200) || success) {
                 Intent i = new Intent(LoginActivity.this, ProfileActivity.class);
                 /* parse the response (res) */
                 try {
@@ -139,11 +161,20 @@ public class LoginActivity extends AppCompatActivity {
                     i.putExtra("first_name", credentials.get("first_name").toString());
                     i.putExtra("last_name", credentials.get("last_name").toString());
                     i.putExtra("phone", credentials.get("phone").toString());
+                    SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.this.prefs, 0);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("_id", credentials.get("_id").toString());
+                    editor.commit();
+                    Log.d("[Id]", sharedPreferences.getString("_id", ""));
                     startActivity(i);
                 } catch (Exception e) {
                     Log.d("[Exception]", e.toString());
                 }
                 finish();
+            } else {
+                setContentView(R.layout.activity_login);
+                username = (EditText) findViewById(R.id.username);
+                password = (EditText) findViewById(R.id.password);
             }
         }
 
