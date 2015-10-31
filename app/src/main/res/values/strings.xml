@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">abcd</string>
-
+    <string name="text_choose_another">Choose Again</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="text_choose_image">Choose Image</string>
+    <string name="imageview_chosen_description">Garbage report image.</string>
 </resources>
