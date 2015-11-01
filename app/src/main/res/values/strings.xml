@@ -6,11 +6,18 @@
     <string name="text_choose_image">Choose Image</string>
     <string name="imageview_chosen_description">Garbage report image.</string>
     <string name="title_activity_login">LoginActivity</string>
-    <string name="text_username">username</string>
+    <string name="text_username">email</string>
+    <string name="first_name">firstname</string>
+    <string name="last_name">lastname</string>
+    <string name="phone">phone</string>
+    <string name="text_cnfpassword">confirm</string>
     <string name="text_password">password</string>
     <string name="login_text">Login</string>
+    <string name="register_text">Register</string>
+    <string name="goback_text">Go Back</string>
     <string name="logout_text">Logout</string>
     <string name="report_text">Report Garbage</string>
     <string name="text_send">Send Information</string>
     <string name="title_activity_profile">ProfileActivity</string>
+    <string name="title_activity_register">RegisterActivity</string>
 </resources>

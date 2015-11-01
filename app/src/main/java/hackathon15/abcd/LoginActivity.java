@@ -56,6 +56,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    public void gotoRegister(View v) {
+        Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
+        startActivity(i);
+    }
+
     /* try to login */
     public void attemptLogin(View v) {
         /* is network allowed ?? */
@@ -71,8 +76,13 @@ public class LoginActivity extends AppCompatActivity {
         }
         String ustr = username.getText().toString();
         String pstr = password.getText().toString();
-        new LoginHandlerTask().execute(ustr, pstr, "");
-
+        if (ustr.length() > 0 && pstr.length() > 0) {
+            new LoginHandlerTask().execute(ustr, pstr, "");
+        } else {
+            Toast t = Toast.makeText(LoginActivity.this, "fill_all_fields", Toast.LENGTH_LONG);
+            t.setText("Please fill all fields.");
+            t.show();
+        }
     }
 
     @Override
@@ -131,15 +141,9 @@ public class LoginActivity extends AppCompatActivity {
                 status = httpHelper.response_code;
                 JSONObject jsonObject = new JSONObject(response);
                 success = jsonObject.get("success").toString().equals("true");
-
+                if (!success) return null;
             } catch (Exception e) {
                 Log.d("[Exception]", e.toString());
-            } finally {
-                if ((mode && status != 200) || !success) {
-                    Toast t = Toast.makeText(LoginActivity.this, "response", Toast.LENGTH_LONG);
-                    t.setText("Login Failed !!");
-                    t.show();
-                }
             }
             Log.d("[Response]", response);
             return response;
@@ -173,7 +177,10 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 finish();
             } else {
-                setContentView(R.layout.activity_login);
+                Toast t = Toast.makeText(LoginActivity.this, "response", Toast.LENGTH_LONG);
+                t.setText("Login Failed !!");
+                t.show();
+                //setContentView(R.layout.activity_login);
             }
         }
 

@@ -46,7 +46,7 @@
     </TableRow>
 
     <TableRow android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <Button
             android:layout_marginTop="10dp"
@@ -56,5 +56,17 @@
             android:id="@+id/login_button"
             android:onClick="attemptLogin"/>
     </TableRow>
+    <TableRow android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/register_text"
+            android:id="@+id/register_button"
+            android:onClick="gotoRegister"/>
+    </TableRow>
+
 
 </LinearLayout>
