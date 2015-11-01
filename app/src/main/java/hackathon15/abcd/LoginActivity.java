@@ -31,8 +31,8 @@ import java.nio.charset.StandardCharsets;
 public class LoginActivity extends AppCompatActivity {
 
     EditText username, password;
-    final String url = "http://172.16.16.57:3000/";
-    final String prefs = "UserPreferences"; /* the shared preferences */
+    public static final String url = "http://172.16.16.57:3000/";
+    public static final String prefs = "UserPreferences"; /* the shared preferences */
 
 
     @Override
@@ -97,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class LoginHandlerTask extends AsyncTask<String, Void, String> {
+    public class LoginHandlerTask extends AsyncTask<String, Void, String> {
 
         private ProgressDialog progressDialog;
         private int status = -1;
@@ -131,14 +131,15 @@ public class LoginActivity extends AppCompatActivity {
                 status = httpHelper.response_code;
                 JSONObject jsonObject = new JSONObject(response);
                 success = jsonObject.get("success").toString().equals("true");
+
+            } catch (Exception e) {
+                Log.d("[Exception]", e.toString());
+            } finally {
                 if ((mode && status != 200) || !success) {
                     Toast t = Toast.makeText(LoginActivity.this, "response", Toast.LENGTH_LONG);
                     t.setText("Login Failed !!");
                     t.show();
                 }
-
-            } catch (Exception e) {
-                Log.d("[Exception]", e.toString());
             }
             Log.d("[Response]", response);
             return response;
@@ -173,8 +174,6 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             } else {
                 setContentView(R.layout.activity_login);
-                username = (EditText) findViewById(R.id.username);
-                password = (EditText) findViewById(R.id.password);
             }
         }
 
