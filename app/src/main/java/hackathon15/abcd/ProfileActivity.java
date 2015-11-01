@@ -31,10 +31,10 @@ public class ProfileActivity extends AppCompatActivity {
         Intent i = getIntent();
         try {
             Bundle extras = i.getExtras();
-            email_field.setText(extras.get("email").toString());
-            first_name_field.setText(extras.get("first_name").toString());
-            last_name_field.setText(extras.get("last_name").toString());
-            phone_field.setText(extras.get("phone").toString());
+            email_field.setText("Email : "+extras.get("email").toString());
+            first_name_field.setText("First Name : "+extras.get("first_name").toString());
+            last_name_field.setText("Last Name : "+extras.get("last_name").toString());
+            phone_field.setText("Phone : "+extras.get("phone").toString());
         } catch(Exception e) {
             SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.prefs, 0);
             String id = sharedPreferences.getString("_id", "");
